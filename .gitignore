@@ -14,7 +14,8 @@ client/build/
 server/dist/
 
 # Ignore model and large data files in recommendation_service
-recommendation_service/model/
+recommendation_service/model/df
+recommendation_service/model/similarity
 recommendation_service/*.pickle
 
 # Ignore environment files
