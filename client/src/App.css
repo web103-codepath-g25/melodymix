@@ -36,3 +36,8 @@
     transform: rotate(360deg);
   }
 }
+
+/* App.css */
+body {
+  font-family: 'Arial', sans-serif;
+}

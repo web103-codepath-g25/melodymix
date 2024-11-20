@@ -1,11 +1,11 @@
 import React from 'react';
-import Login from './Login';
+import Playlists from './Playlists';
 import './App.css';
 
 function App() {
   return (
     <div>
-      <Login />
+      <Playlists />
     </div>
   );
 }
