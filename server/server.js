@@ -1,11 +1,14 @@
 import express from 'express';
 import './config/dotenv.js'; // Loads environment variables
+import cors from 'cors'
 import songRoutes from './routes/songs.js'; // Songs router
 import playlistRoutes from './routes/playlists.js'; // Import the playlists router
 import userRoutes from './routes/users.js';
 
 
 const app = express();
+app.use(express.json())
+app.use(cors())
 
 // Serve static files
 app.use('/public', express.static('./public'));

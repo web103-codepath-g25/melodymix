@@ -27,12 +27,16 @@ const getUserById = async (req, res) => {
 // Create a new user
 const createUser = async (req, res) => {
     try {
-        const { username, email } = req.body;
-        const results = await pool.query(
-            'INSERT INTO users (username, email) VALUES ($1, $2) RETURNING *',
-            [username, email]
-        );
-        res.status(201).json(results.rows[0]);
+        const { username, email, role } = req.body; // Ensure these match your JSON keys
+        const query = `
+            INSERT INTO users (username, email, role)
+            VALUES ($1, $2, $3)
+            RETURNING *;
+        `;
+        const values = [username, email, role];
+        const result = await pool.query(query, values);
+
+        res.status(201).json(result.rows[0]);
     } catch (error) {
         res.status(409).json({ error: error.message });
     }
