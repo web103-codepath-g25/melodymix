@@ -1,6 +1,6 @@
 import express from 'express';
 import './config/dotenv.js'; // Loads environment variables
-import router from './routes/songs.js'; // Songs router
+import songRoutes from './routes/songs.js'; // Songs router
 
 const app = express();
 
@@ -8,8 +8,8 @@ const app = express();
 app.use('/public', express.static('./public'));
 app.use('/scripts', express.static('./public/scripts'));
 
-// Use the songs router
-app.use('/songs', router);
+// Use the songs router with the /api prefix
+app.use('/api/songs', songRoutes);
 
 // Home route
 app.get('/', (req, res) => {

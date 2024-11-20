@@ -1,19 +1,13 @@
 import express from 'express';
-import path from 'path';
 import SongsController from '../controllers/songs.js';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// Route to fetch all songs
-router.get('/songs', SongsController.getSongs);
-
-// Route to serve a static HTML page for a specific song
-router.get('/:songId', (req, res) => {
-    res.status(200).sendFile(path.resolve(__dirname, '../public/song.html'));
-});
+// CRUD routes for songs
+router.get('/', SongsController.getSongs); // GET all songs
+router.get('/:id', SongsController.getSong); // GET a song by ID
+router.post('/', SongsController.createSong); // POST a new song
+router.patch('/:id', SongsController.updateSong); // PATCH (update) a song
+router.delete('/:id', SongsController.deleteSong); // DELETE a song
 
 export default router;
