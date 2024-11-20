@@ -43,18 +43,39 @@ const updateSong = async (req, res) => {
     try {
         const id = parseInt(req.params.id);
         const { title, artist, genre, summary } = req.body;
-        const results = await pool.query(
-            'UPDATE songs SET title = $1, artist = $2, genre = $3, summary = $4 WHERE id = $5 RETURNING *',
-            [title, artist, genre, summary, id]
-        );
-        if (results.rows.length === 0) {
+
+        // Retrieve the existing song
+        const existingSongQuery = 'SELECT * FROM songs WHERE id = $1';
+        const existingSongResult = await pool.query(existingSongQuery, [id]);
+
+        if (existingSongResult.rows.length === 0) {
             return res.status(404).json({ error: 'Song not found' });
         }
-        res.status(200).json(results.rows[0]);
+
+        const existingSong = existingSongResult.rows[0];
+
+        // Merge the existing data with the new data
+        const updatedTitle = title || existingSong.title;
+        const updatedArtist = artist || existingSong.artist;
+        const updatedGenre = genre || existingSong.genre;
+        const updatedSummary = summary || existingSong.summary;
+
+        // Update the song in the database
+        const updateQuery = `
+            UPDATE songs
+            SET title = $1, artist = $2, genre = $3, summary = $4
+            WHERE id = $5
+            RETURNING *;
+        `;
+        const updatedValues = [updatedTitle, updatedArtist, updatedGenre, updatedSummary, id];
+        const updatedSongResult = await pool.query(updateQuery, updatedValues);
+
+        res.status(200).json(updatedSongResult.rows[0]);
     } catch (error) {
         res.status(409).json({ error: error.message });
     }
 };
+
 
 // Delete a song
 const deleteSong = async (req, res) => {
