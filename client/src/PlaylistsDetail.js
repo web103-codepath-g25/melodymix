@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom'; // Import useParams to get dynamic route params
 
 const PlaylistsDetail = () => {
+  const { playlistId } = useParams(); // Extract playlistId from the URL
   const [playlist, setPlaylist] = useState(null); // State for a single playlist
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -10,7 +12,7 @@ const PlaylistsDetail = () => {
 
     const fetchPlaylist = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/playlists/1', {
+        const response = await fetch(`http://localhost:3001/api/playlists/${playlistId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -42,7 +44,7 @@ const PlaylistsDetail = () => {
     return () => {
       isMounted = false;
     };
-  }, []); // Empty dependency array to fetch once when the component mounts
+  }, [playlistId]); // Re-fetch when playlistId changes
 
   if (isLoading) {
     return <div>Loading playlist...</div>;
@@ -60,6 +62,7 @@ const PlaylistsDetail = () => {
     <div className="playlist-detail">
       <h2>{playlist.name}</h2>
       <p>User ID: {playlist.user_id}</p>
+      {/* Add more details as needed */}
     </div>
   );
 };

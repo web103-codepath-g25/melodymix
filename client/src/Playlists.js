@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; // Import Link for navigation
 
 const Playlists = () => {
   const [playlists, setPlaylists] = useState([]);
@@ -22,15 +23,15 @@ const Playlists = () => {
         }
 
         const data = await response.json();
-        
+
         // Only update state if component is still mounted
         if (isMounted) {
           // Remove duplicates
           const uniquePlaylists = Array.from(
-            new Map(data.map(playlist => [playlist.id, playlist]))
+            new Map(data.map(playlist => [playlist.user_id, playlist]))
             .values()
           );
-          
+
           setPlaylists(uniquePlaylists);
           setIsLoading(false);
         }
@@ -65,8 +66,10 @@ const Playlists = () => {
       ) : (
         <div className="playlists-grid">
           {playlists.map((playlist) => (
-            <div key={playlist.id} className="playlist-card">
-              <h2>{playlist.name}</h2>
+            <div key={playlist.user_id} className="playlist-card">
+              <h2>
+                <Link to={`/playlists/${playlist.user_id}`}>{playlist.name}</Link>
+              </h2>
             </div>
           ))}
         </div>

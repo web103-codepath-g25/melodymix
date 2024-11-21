@@ -8,10 +8,10 @@ function App() {
   return (
     <Router>
       <Routes>
-      <Route path="/playlists" element={<Playlists />} />
-      <Route path="/playlistsDetail" element={<PlaylistsDetail />} />
-    </Routes>
-  </Router>
+        <Route path="/playlists" element={<Playlists />} />
+        <Route path="/playlists/:playlistId" element={<PlaylistsDetail />} />
+      </Routes>
+    </Router>
   );
 }
 
