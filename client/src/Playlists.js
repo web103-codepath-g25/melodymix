@@ -6,7 +6,7 @@ const Playlists = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    let isMounted = true;  // Flag to track component mounting
+    let isMounted = true;
 
     const fetchPlaylists = async () => {
       try {
@@ -60,7 +60,6 @@ const Playlists = () => {
 
   return (
     <div className="playlists-container">
-      <h1>My Playlists</h1>
       {playlists.length === 0 ? (
         <p>No playlists found.</p>
       ) : (
@@ -68,7 +67,6 @@ const Playlists = () => {
           {playlists.map((playlist) => (
             <div key={playlist.id} className="playlist-card">
               <h2>{playlist.name}</h2>
-              <p>Created by User ID: {playlist.user_id}</p>
             </div>
           ))}
         </div>
