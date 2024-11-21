@@ -1,5 +1,7 @@
+// src/components/Playlists.js
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // Import Link for navigation
+import PlaylistCard from './PlaylistCard'; // Import PlaylistCard
+import './playlists.css'; // Import CSS for the container/grid styles
 
 const Playlists = () => {
   const [playlists, setPlaylists] = useState([]);
@@ -24,12 +26,9 @@ const Playlists = () => {
 
         const data = await response.json();
 
-        // Only update state if component is still mounted
         if (isMounted) {
-          // Remove duplicates
           const uniquePlaylists = Array.from(
-            new Map(data.map(playlist => [playlist.user_id, playlist]))
-            .values()
+            new Map(data.map(playlist => [playlist.user_id, playlist])).values()
           );
 
           setPlaylists(uniquePlaylists);
@@ -45,11 +44,10 @@ const Playlists = () => {
 
     fetchPlaylists();
 
-    // Cleanup function
     return () => {
       isMounted = false;
     };
-  }, []); // Empty dependency array
+  }, []);
 
   if (isLoading) {
     return <div>Loading playlists...</div>;
@@ -66,11 +64,7 @@ const Playlists = () => {
       ) : (
         <div className="playlists-grid">
           {playlists.map((playlist) => (
-            <div key={playlist.user_id} className="playlist-card">
-              <h2>
-                <Link to={`/playlists/${playlist.user_id}`}>{playlist.name}</Link>
-              </h2>
-            </div>
+            <PlaylistCard key={playlist.user_id} playlist={playlist} />
           ))}
         </div>
       )}

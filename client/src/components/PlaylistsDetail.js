@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import './PlaylistDetail.css'; // Import CSS for the container/grid styles
+
 
 const PlaylistsDetail = () => {
   const { playlistId } = useParams();
@@ -17,13 +19,14 @@ const PlaylistsDetail = () => {
     const fetchPlaylist = async () => {
       try {
         const response = await fetch(`http://localhost:3001/api/playlist-songs/${playlistId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch playlist');
-        }
+        if (!response.ok) throw new Error('Failed to fetch playlist');
+
         const data = await response.json();
         if (isMounted) {
           setPlaylist(data);
           setIsLoading(false);
+          
+          // Extract unique artists
           const uniqueArtists = Array.from(new Set(data.map(song => song.artist).filter(artist => artist)));
           setArtists(uniqueArtists);
         }
@@ -36,6 +39,8 @@ const PlaylistsDetail = () => {
     };
 
     fetchPlaylist();
+
+    // Cleanup on unmount
     return () => {
       isMounted = false;
     };
@@ -59,10 +64,10 @@ const PlaylistsDetail = () => {
             userId: 1, // Replace with actual user ID
           }),
         });
-        if (!response.ok) {
-          throw new Error('Failed to add song');
-        }
+
+        if (!response.ok) throw new Error('Failed to add song');
         const data = await response.json();
+
         setPlaylist((prevPlaylist) => [...prevPlaylist, data]); // Add new song to playlist
         setNewSongTitle('');
         setNewSongArtist('');
@@ -78,56 +83,64 @@ const PlaylistsDetail = () => {
 
   return (
     <div className="playlist-detail">
+      {/* Playlist Header */}
       <h2>Playlist {playlistId} Details</h2>
 
       {/* Add a New Song Form */}
-      <div>
+      <section className="add-song-form">
         <h3>Add a New Song</h3>
         <input
           type="text"
           placeholder="Song Title"
           value={newSongTitle}
           onChange={(e) => setNewSongTitle(e.target.value)}
+          className="input-field"
         />
         <input
           type="text"
           placeholder="Artist"
           value={newSongArtist}
           onChange={(e) => setNewSongArtist(e.target.value)}
+          className="input-field"
         />
-        <button onClick={handleAddSong}>Add Song</button>
-      </div>
+        <button onClick={handleAddSong} className="btn-primary">
+          Add Song
+        </button>
+      </section>
 
       {/* Artist Dropdown */}
-      <label htmlFor="artist-select">Filter by Artist:</label>
-      <select
-        id="artist-select"
-        value={selectedArtist}
-        onChange={(e) => setSelectedArtist(e.target.value)}
-      >
-        <option value="">All Artists</option>
-        {artists.map((artist) => (
-          <option key={artist} value={artist}>
-            {artist}
-          </option>
-        ))}
-      </select>
+      <section className="filter-section">
+        <label htmlFor="artist-select">Filter by Artist:</label>
+        <select
+          id="artist-select"
+          value={selectedArtist}
+          onChange={(e) => setSelectedArtist(e.target.value)}
+          className="select-dropdown"
+        >
+          <option value="">All Artists</option>
+          {artists.map((artist) => (
+            <option key={artist} value={artist}>
+              {artist}
+            </option>
+          ))}
+        </select>
+      </section>
 
-      {/* Iterate over filtered playlist songs */}
-      {filteredSongs.length === 0 ? (
-        <p>No songs found for this artist.</p>
-      ) : (
-        <div className="song-list">
-          {filteredSongs.map((song) => (
+      {/* Display filtered songs */}
+      <section className="song-list">
+        {filteredSongs.length === 0 ? (
+          <p>No songs found for this artist.</p>
+        ) : (
+          filteredSongs.map((song) => (
             <div key={song.id} className="song-card">
               <h3>{song.title}</h3>
               <p>Artist: {song.artist}</p>
               <p>Duration: {song.duration || 'Unknown'}</p>
               <p>Created At: {new Date(song.created_at).toLocaleString()}</p>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </section>
     </div>
   );
 };

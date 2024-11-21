@@ -1,6 +1,6 @@
 import React from 'react';
-import PlaylistsDetail from './PlaylistsDetail';
-import Playlists from './Playlists';
+import PlaylistsDetail from './components/PlaylistsDetail';
+import Playlists from './components/Playlists';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 
