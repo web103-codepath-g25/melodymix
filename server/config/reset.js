@@ -143,24 +143,46 @@ const createPlaylistSongsTable = async () => {
     }
 };
 
-// Reset Function
-const resetDatabase = async () => {
+const createRatingsFeedbackTable = async () => {
+    const createTableQuery = `
+      DROP TABLE IF EXISTS ratings_feedback;
+  
+      CREATE TABLE IF NOT EXISTS ratings_feedback (
+          id SERIAL PRIMARY KEY,
+          song_id INTEGER NOT NULL REFERENCES songs(id) ON DELETE CASCADE,
+          user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+          feedback TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+  
+    try {
+      await pool.query(createTableQuery);
+      console.log('🎉 ratings_feedback table created successfully');
+    } catch (err) {
+      console.error('⚠️ Error creating ratings_feedback table:', err.message);
+    }
+  };
+  
+  const resetDatabase = async () => {
     console.log('🔄 Resetting database...');
     try {
-        await createUsersTable(); // Create users table first
-        await seedUsersTable(); // Seed users
-        await createPlaylistsTable(); // Create playlists table
-        await seedPlaylistsTable(); // Seed playlists
-        await createSongsTable(); // Create songs table
-        await seedSongsTable(); // Seed songs
-        await createPlaylistSongsTable(); // Create playlist_songs table
-        console.log('✅ Database reset complete');
+      await createUsersTable(); 
+      await seedUsersTable();
+      await createPlaylistsTable(); 
+      await seedPlaylistsTable();
+      await createSongsTable(); 
+      await seedSongsTable();
+      await createPlaylistSongsTable();
+      await createRatingsFeedbackTable(); // Add this call
+      console.log('✅ Database reset complete');
     } catch (err) {
-        console.error('⚠️ Error resetting database:', err);
+      console.error('⚠️ Error resetting database:', err.message);
     } finally {
-        pool.end();
+      pool.end();
     }
-};
-
-// Run Reset
-resetDatabase();
+  };
+  
+  resetDatabase();
+  
