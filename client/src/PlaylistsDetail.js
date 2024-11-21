@@ -6,6 +6,8 @@ const PlaylistsDetail = () => {
   const [playlist, setPlaylist] = useState(null); // State for a single playlist
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedArtist, setSelectedArtist] = useState(''); // State for the selected artist
+  const [artists, setArtists] = useState([]); // State to store unique artists
 
   useEffect(() => {
     let isMounted = true;
@@ -31,6 +33,10 @@ const PlaylistsDetail = () => {
         if (isMounted) {
           setPlaylist(data); // Set the single playlist data
           setIsLoading(false);
+
+          // Extract unique artists from the playlist and set it
+          const uniqueArtists = Array.from(new Set(data.map(song => song.artist).filter(artist => artist)));
+          setArtists(uniqueArtists);
         }
       } catch (err) {
         if (isMounted) {
@@ -48,6 +54,11 @@ const PlaylistsDetail = () => {
     };
   }, [playlistId]); // Re-fetch when playlistId changes
 
+  // Filter songs by selected artist
+  const filteredSongs = selectedArtist
+    ? playlist.filter((song) => song.artist === selectedArtist)
+    : playlist;
+
   if (isLoading) {
     return <div>Loading playlist...</div>;
   }
@@ -63,12 +74,28 @@ const PlaylistsDetail = () => {
   return (
     <div className="playlist-detail">
       <h2>Playlist {playlistId} Details</h2>
-      {/* Iterate over playlist songs */}
-      {playlist.length === 0 ? (
-        <p>No songs in this playlist.</p>
+
+      {/* Artist Dropdown */}
+      <label htmlFor="artist-select">Filter by Artist:</label>
+      <select
+        id="artist-select"
+        value={selectedArtist}
+        onChange={(e) => setSelectedArtist(e.target.value)}
+      >
+        <option value="">All Artists</option>
+        {artists.map((artist) => (
+          <option key={artist} value={artist}>
+            {artist}
+          </option>
+        ))}
+      </select>
+
+      {/* Iterate over filtered playlist songs */}
+      {filteredSongs.length === 0 ? (
+        <p>No songs found for this artist.</p>
       ) : (
         <div className="song-list">
-          {playlist.map((song) => (
+          {filteredSongs.map((song) => (
             <div key={song.id} className="song-card">
               <h3>{song.title}</h3>
               <p>Artist: {song.artist}</p>
