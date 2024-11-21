@@ -10,7 +10,7 @@ const Playlists = () => {
 
     const fetchPlaylists = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/playlist-songs/1', {
+        const response = await fetch('http://localhost:3001/api/playlists', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'

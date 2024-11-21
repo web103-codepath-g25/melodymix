@@ -1,29 +1,9 @@
-const userData = [
-    {
-        username: "admin",
-        email: "admin@example.com",
-        role: "admin"
-    },
-    {
-        username: "user1",
-        email: "user1@example.com",
-        role: "user"
-    },
-    {
-        username: "user2",
-        email: "user2@example.com",
-        role: "user"
-    },
-    {
-        username: "user3",
-        email: "user3@example.com",
-        role: "user"
-    },
-    {
-        username: "user4",
-        email: "user4@example.com",
-        role: "user"
-    }
-];
-
-export default userData;
+const usersData = [
+    { name: 'Alice', email: 'alice@example.com' },
+    { name: 'Bob', email: 'bob@example.com' },
+    { name: 'Charlie', email: 'charlie@example.com' },
+    { name: 'Dana', email: 'dana@example.com' }
+  ];
+  
+  export default usersData;
+  
