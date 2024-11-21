@@ -8,6 +8,8 @@ import songRoutes from './routes/songs.js'; // Songs router
 import playlistRoutes from './routes/playlists.js'; // Playlists router
 import userRoutes from './routes/users.js'; // Users router
 import playlistSongsRoutes from './routes/playlistSongs.js'; // Playlist-Songs router
+import ratingsFeedbackRoutes from './routes/ratingsFeedback.js'; // Import the new router
+
 
 const app = express();
 
@@ -39,6 +41,8 @@ app.use('/api/songs', songRoutes); // Songs-related routes
 app.use('/api/playlists', playlistRoutes); // Playlists-related routes
 app.use('/api/users', userRoutes); // User-related routes
 app.use('/api/playlist-songs', playlistSongsRoutes); // Playlist-Songs-related routes
+app.use('/api/ratings-feedback', ratingsFeedbackRoutes); // Use the router
+
 
 // Authentication Routes
 app.get(
