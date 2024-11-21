@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './PlaylistDetail.css'; // Import CSS for the container/grid styles
 
-
 const PlaylistsDetail = () => {
   const { playlistId } = useParams();
   const [playlist, setPlaylist] = useState(null);
@@ -77,6 +76,23 @@ const PlaylistsDetail = () => {
     }
   };
 
+  const handleDeleteSong = async (songId) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/playlist-songs/${playlistId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ songId }),
+      });
+
+      if (!response.ok) throw new Error('Failed to delete song');
+      setPlaylist((prevPlaylist) => prevPlaylist.filter((song) => song.id !== songId));
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   if (isLoading) return <div>Loading playlist...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!playlist) return <div>No playlist found</div>;
@@ -84,7 +100,7 @@ const PlaylistsDetail = () => {
   return (
     <div className="playlist-detail">
       {/* Playlist Header */}
-      <h2>Playlist {playlistId} Details</h2>
+      <h2 className="h2-color">Playlist {playlistId} Details</h2>
 
       {/* Add a New Song Form */}
       <section className="add-song-form">
@@ -137,6 +153,12 @@ const PlaylistsDetail = () => {
               <p>Artist: {song.artist}</p>
               <p>Duration: {song.duration || 'Unknown'}</p>
               <p>Created At: {new Date(song.created_at).toLocaleString()}</p>
+              <button
+                onClick={() => handleDeleteSong(song.id)}
+                className="btn-delete"
+              >
+                Delete
+              </button>
             </div>
           ))
         )}
