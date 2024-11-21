@@ -1,87 +1,72 @@
-// src/Playlists.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Playlists = () => {
-  const [playlists, setPlaylists] = useState([
-    { id: 1, name: 'Hiphop', genre: 'Hip-hop' },
-    { id: 2, name: 'Rap', genre: 'Rap' },
-    { id: 3, name: 'Lofi', genre: 'Lofi' },
-    { id: 4, name: 'R&B', genre: 'R&B' },
-  ]);
-  
-  const [newPlaylist, setNewPlaylist] = useState('');
-  const [filterGenre, setFilterGenre] = useState('All');
+  // State to store the playlists
+  const [playlists, setPlaylists] = useState([]);
+  // State to manage loading and error states
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const addPlaylist = () => {
-    if (newPlaylist.trim()) {
-      setPlaylists([...playlists, { id: playlists.length + 1, name: newPlaylist, genre: 'Unknown' }]);
-      setNewPlaylist('');
-    }
-  };
+  useEffect(() => {
+    // Function to fetch playlists from the backend
+    const fetchPlaylists = async () => {
+      try {
+        // Make sure to use the full URL if not using a proxy
+        const response = await fetch('http://localhost:3001/api/playlists', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
 
-  const handleFilterChange = (e) => {
-    setFilterGenre(e.target.value);
-  };
+        // Check if the response is ok
+        if (!response.ok) {
+          throw new Error('Failed to fetch playlists');
+        }
 
-  const filteredPlaylists = playlists.filter(
-    (playlist) => filterGenre === 'All' || playlist.genre === filterGenre
-  );
-
-  return (
-    <div className="p-8 min-h-screen bg-gray-100">
-      <div className="flex justify-between items-center mb-8">
-        <button 
-          className="text-indigo-600 font-semibold hover:text-indigo-800"
-          onClick={addPlaylist}
-        >
-          + Add Playlist
-        </button>
+        // Parse the JSON response
+        const data = await response.json();
         
-        <div className="flex items-center space-x-4">
-          <span className="text-gray-600">Filter by Genre:</span>
-          <select
-            value={filterGenre}
-            onChange={handleFilterChange}
-            className="p-2 border rounded-md"
-          >
-            <option value="All">All</option>
-            <option value="Hip-hop">Hip-hop</option>
-            <option value="Rap">Rap</option>
-            <option value="Lofi">Lofi</option>
-            <option value="R&B">R&B</option>
-          </select>
-        </div>
-      </div>
+        // Update state with fetched playlists
+        setPlaylists(data);
+        setIsLoading(false);
+      } catch (err) {
+        // Handle any errors
+        setError(err.message);
+        setIsLoading(false);
+      }
+    };
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredPlaylists.map((playlist) => (
-          <div 
-            key={playlist.id}
-            className="bg-gray-600 text-white rounded-lg p-5 shadow-lg flex flex-col justify-between"
-          >
-            <h2 className="text-xl font-semibold">{playlist.name}</h2>
-            <button className="bg-indigo-600 p-2 mt-4 rounded-md hover:bg-indigo-700">
-              Play
-            </button>
-          </div>
-        ))}
-      </div>
+    // Call the fetch function
+    fetchPlaylists();
+  }, []); // Empty dependency array means this effect runs once on mount
 
-      <div className="mt-8">
-        <input
-          type="text"
-          placeholder="New Playlist Name"
-          value={newPlaylist}
-          onChange={(e) => setNewPlaylist(e.target.value)}
-          className="p-3 border rounded-md w-1/2 mr-2"
-        />
-        <button 
-          onClick={addPlaylist}
-          className="bg-indigo-600 text-white p-3 rounded-md hover:bg-indigo-700"
-        >
-          Add
-        </button>
-      </div>
+  // Render loading state
+  if (isLoading) {
+    return <div>Loading playlists...</div>;
+  }
+
+  // Render error state
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  // Render playlists
+  return (
+    <div className="playlists-container">
+      <h1>My Playlists</h1>
+      {playlists.length === 0 ? (
+        <p>No playlists found.</p>
+      ) : (
+        <ul className="playlists-list">
+          {playlists.map((playlist) => (
+            <li key={playlist.id} className="playlist-item">
+              <div className="playlist-name">{playlist.name}</div>
+              <div className="playlist-user">Created by User ID: {playlist.user_id}</div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
