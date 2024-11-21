@@ -29,32 +29,42 @@ export const getPlaylistSongs = async (req, res) => {
 // Add a song to a playlist
 export const addSongToPlaylist = async (req, res) => {
     const { playlistId } = req.params;
-    const { title, artist } = req.body;  // Accept title and artist instead of songId
-
+    const { title, artist } = req.body; // Frontend will send title and artist
     try {
-        // Insert the song into the songs table
-        const insertSongQuery = `
-            INSERT INTO songs (title, artist)
+        // Step 1: Check if the song already exists
+        const existingSongQuery = "SELECT id FROM songs WHERE title = $1 AND artist = $2";
+        const existingSongValues = [title, artist];
+        const existingSongResult = await pool.query(existingSongQuery, existingSongValues);
+        let songId;
+        if (existingSongResult.rows.length > 0) {
+            // Song already exists
+            songId = existingSongResult.rows[0].id;
+        } else {
+            // Step 2: Create a new song if it doesn’t exist
+            const createSongQuery = `
+                INSERT INTO songs (title, artist)
+                VALUES ($1, $2)
+                RETURNING id;
+            `;
+            const createSongValues = [title, artist];
+            const createSongResult = await pool.query(createSongQuery, createSongValues);
+            songId = createSongResult.rows[0].id;
+        }
+        // Step 3: Add the song to the playlist
+        const addToPlaylistQuery = `
+            INSERT INTO playlist_songs (playlist_id, song_id)
             VALUES ($1, $2)
-            RETURNING id;
-        `;
-        const songResult = await pool.query(insertSongQuery, [title, artist]);
-
-        // Get the song ID from the insertion result
-        const songId = songResult.rows[0].id;
-
-        // Insert the song into the playlist
-        const insertPlaylistSongQuery = `
-            INSERT INTO playlist_songs (playlist_id, song_id, added_by)
-            VALUES ($1, $2, $3)
             RETURNING *;
         `;
-        const values = [playlistId, songId, userId];
-        const result = await pool.query(insertPlaylistSongQuery, values);
-
-        res.status(201).json(result.rows[0]);
+        const addToPlaylistValues = [playlistId, songId];
+        const playlistSongResult = await pool.query(addToPlaylistQuery, addToPlaylistValues);
+        res.status(201).json({
+            message: "Song added to playlist successfully",
+            data: playlistSongResult.rows[0],
+        });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error(err.message);
+        res.status(500).json({ error: "Failed to add song to playlist" });
     }
 };
 
