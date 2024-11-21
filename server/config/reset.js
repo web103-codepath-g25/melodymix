@@ -24,7 +24,7 @@ const createUsersTable = async () => {
   }
 };
 
-// Create Songs Table
+// Create Songs Table (Updated - removed 'duration' field)
 const createSongsTable = async () => {
   const createTableQuery = `
     DROP TABLE IF EXISTS songs;
@@ -32,8 +32,7 @@ const createSongsTable = async () => {
     CREATE TABLE IF NOT EXISTS songs (
       id SERIAL PRIMARY KEY,
       title VARCHAR(255) NOT NULL,
-      artist VARCHAR(255) NOT NULL,
-      duration INT NOT NULL
+      artist VARCHAR(255) NOT NULL
     );
   `;
 
@@ -100,11 +99,11 @@ const seedUsersTable = async () => {
   }
 };
 
-// Seed Songs Table
+// Seed Songs Table (Updated - removed 'duration' field)
 const seedSongsTable = async () => {
   for (const song of songsData) {
-    const insertQuery = `INSERT INTO songs (title, artist, duration) VALUES ($1, $2, $3) RETURNING id`;
-    const values = [song.title, song.artist, song.duration];
+    const insertQuery = `INSERT INTO songs (title, artist) VALUES ($1, $2) RETURNING id`;
+    const values = [song.title, song.artist]; // Removed 'duration' field
 
     try {
       const res = await pool.query(insertQuery, values);
@@ -171,6 +170,7 @@ const seedSongPlaylistTable = async () => {
   }
 };
 
+// Reset Database (Updated)
 async function resetDatabase() {
   try {
     // Drop all existing tables
@@ -200,7 +200,6 @@ async function resetDatabase() {
         id SERIAL PRIMARY KEY,
         title VARCHAR(255),
         artist VARCHAR(255),
-        duration INT,
         created_at TIMESTAMP DEFAULT NOW()
       );
     `);

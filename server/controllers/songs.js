@@ -6,7 +6,8 @@ const getSongs = async (req, res) => {
         const results = await pool.query('SELECT * FROM songs ORDER BY id ASC');
         res.status(200).json(results.rows);
     } catch (error) {
-        res.status(409).json({ error: error.message });
+        console.error(error); // Log the error for debugging
+        res.status(500).json({ error: error.message });
     }
 };
 
@@ -20,21 +21,24 @@ const getSong = async (req, res) => {
         }
         res.status(200).json(results.rows[0]);
     } catch (error) {
-        res.status(409).json({ error: error.message });
+        console.error(error); // Log the error for debugging
+        res.status(500).json({ error: error.message });
     }
 };
 
 // Create a new song
 const createSong = async (req, res) => {
     try {
-        const { title, artist, genre, summary } = req.body;
+        console.log("reached")
+        const { title, artist } = req.body; // Only require title and artist
         const results = await pool.query(
-            'INSERT INTO songs (title, artist, genre, summary) VALUES ($1, $2, $3, $4) RETURNING *',
-            [title, artist, genre, summary]
+            'INSERT INTO songs (title, artist) VALUES ($1, $2) RETURNING *',
+            [title, artist]
         );
         res.status(201).json(results.rows[0]);
     } catch (error) {
-        res.status(409).json({ error: error.message });
+        console.error(error); // Log the error for debugging
+        res.status(500).json({ error: error.message });
     }
 };
 
@@ -42,7 +46,7 @@ const createSong = async (req, res) => {
 const updateSong = async (req, res) => {
     try {
         const id = parseInt(req.params.id);
-        const { title, artist, genre, summary } = req.body;
+        const { title, artist } = req.body; // Only update title and artist
 
         // Retrieve the existing song
         const existingSongQuery = 'SELECT * FROM songs WHERE id = $1';
@@ -57,25 +61,23 @@ const updateSong = async (req, res) => {
         // Merge the existing data with the new data
         const updatedTitle = title || existingSong.title;
         const updatedArtist = artist || existingSong.artist;
-        const updatedGenre = genre || existingSong.genre;
-        const updatedSummary = summary || existingSong.summary;
 
         // Update the song in the database
         const updateQuery = `
             UPDATE songs
-            SET title = $1, artist = $2, genre = $3, summary = $4
-            WHERE id = $5
+            SET title = $1, artist = $2
+            WHERE id = $3
             RETURNING *;
         `;
-        const updatedValues = [updatedTitle, updatedArtist, updatedGenre, updatedSummary, id];
+        const updatedValues = [updatedTitle, updatedArtist, id];
         const updatedSongResult = await pool.query(updateQuery, updatedValues);
 
         res.status(200).json(updatedSongResult.rows[0]);
     } catch (error) {
-        res.status(409).json({ error: error.message });
+        console.error(error); // Log the error for debugging
+        res.status(500).json({ error: error.message });
     }
 };
-
 
 // Delete a song
 const deleteSong = async (req, res) => {
@@ -87,7 +89,8 @@ const deleteSong = async (req, res) => {
         }
         res.status(200).json({ message: 'Song deleted successfully', song: results.rows[0] });
     } catch (error) {
-        res.status(409).json({ error: error.message });
+        console.error(error); // Log the error for debugging
+        res.status(500).json({ error: error.message });
     }
 };
 

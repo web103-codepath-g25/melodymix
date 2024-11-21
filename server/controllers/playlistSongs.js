@@ -30,6 +30,7 @@ export const getPlaylistSongs = async (req, res) => {
 export const addSongToPlaylist = async (req, res) => {
     const { playlistId } = req.params;
     const { songId, userId } = req.body;
+    console.log("hi")
 
     try {
         const query = `
