@@ -10,7 +10,10 @@ export default defineConfig({
         changeOrigin: true      },
       '/api/songs': {
         target: 'http://localhost:3001', // Proxy for songs
-        changeOrigin: true      }
+        changeOrigin: true      },
+        '/api': {
+        target: 'http://localhost:3001'
+      }
     }
   }
 });
