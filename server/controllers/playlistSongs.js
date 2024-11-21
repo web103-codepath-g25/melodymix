@@ -29,23 +29,35 @@ export const getPlaylistSongs = async (req, res) => {
 // Add a song to a playlist
 export const addSongToPlaylist = async (req, res) => {
     const { playlistId } = req.params;
-    const { songId, userId } = req.body;
-    console.log("hi")
+    const { title, artist } = req.body;  // Accept title and artist instead of songId
 
     try {
-        const query = `
+        // Insert the song into the songs table
+        const insertSongQuery = `
+            INSERT INTO songs (title, artist)
+            VALUES ($1, $2)
+            RETURNING id;
+        `;
+        const songResult = await pool.query(insertSongQuery, [title, artist]);
+
+        // Get the song ID from the insertion result
+        const songId = songResult.rows[0].id;
+
+        // Insert the song into the playlist
+        const insertPlaylistSongQuery = `
             INSERT INTO playlist_songs (playlist_id, song_id, added_by)
             VALUES ($1, $2, $3)
             RETURNING *;
         `;
         const values = [playlistId, songId, userId];
+        const result = await pool.query(insertPlaylistSongQuery, values);
 
-        const result = await pool.query(query, values);
         res.status(201).json(result.rows[0]);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 };
+
 
 // Remove a song from a playlist
 export const removeSongFromPlaylist = async (req, res) => {
