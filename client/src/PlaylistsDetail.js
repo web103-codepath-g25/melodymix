@@ -10,9 +10,11 @@ const PlaylistsDetail = () => {
   useEffect(() => {
     let isMounted = true;
 
+    console.log("Playlist ID:", playlistId);
+
     const fetchPlaylist = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/playlists/${playlistId}`, {
+        const response = await fetch(`http://localhost:3001/api/playlist-songs/${playlistId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -60,9 +62,22 @@ const PlaylistsDetail = () => {
 
   return (
     <div className="playlist-detail">
-      <h2>{playlist.name}</h2>
-      <p>User ID: {playlist.user_id}</p>
-      {/* Add more details as needed */}
+      <h2>Playlist {playlistId} Details</h2>
+      {/* Iterate over playlist songs */}
+      {playlist.length === 0 ? (
+        <p>No songs in this playlist.</p>
+      ) : (
+        <div className="song-list">
+          {playlist.map((song) => (
+            <div key={song.id} className="song-card">
+              <h3>{song.title}</h3>
+              <p>Artist: {song.artist}</p>
+              <p>Duration: {song.duration || 'Unknown'}</p>
+              <p>Created At: {new Date(song.created_at).toLocaleString()}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
