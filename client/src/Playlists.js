@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
 const Playlists = () => {
-  // State to store the playlists
   const [playlists, setPlaylists] = useState([]);
-  // State to manage loading and error states
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Function to fetch playlists from the backend
+    let isMounted = true;  // Flag to track component mounting
+
     const fetchPlaylists = async () => {
       try {
-        // Make sure to use the full URL if not using a proxy
         const response = await fetch('http://localhost:3001/api/playlists', {
           method: 'GET',
           headers: {
@@ -19,53 +17,61 @@ const Playlists = () => {
           }
         });
 
-        // Check if the response is ok
         if (!response.ok) {
           throw new Error('Failed to fetch playlists');
         }
 
-        // Parse the JSON response
         const data = await response.json();
         
-        // Update state with fetched playlists
-        setPlaylists(data);
-        setIsLoading(false);
+        // Only update state if component is still mounted
+        if (isMounted) {
+          // Remove duplicates
+          const uniquePlaylists = Array.from(
+            new Map(data.map(playlist => [playlist.id, playlist]))
+            .values()
+          );
+          
+          setPlaylists(uniquePlaylists);
+          setIsLoading(false);
+        }
       } catch (err) {
-        // Handle any errors
-        setError(err.message);
-        setIsLoading(false);
+        if (isMounted) {
+          setError(err.message);
+          setIsLoading(false);
+        }
       }
     };
 
-    // Call the fetch function
     fetchPlaylists();
-  }, []); // Empty dependency array means this effect runs once on mount
 
-  // Render loading state
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Empty dependency array
+
   if (isLoading) {
     return <div>Loading playlists...</div>;
   }
 
-  // Render error state
   if (error) {
     return <div>Error: {error}</div>;
   }
 
-  // Render playlists
   return (
     <div className="playlists-container">
       <h1>My Playlists</h1>
       {playlists.length === 0 ? (
         <p>No playlists found.</p>
       ) : (
-        <ul className="playlists-list">
+        <div className="playlists-grid">
           {playlists.map((playlist) => (
-            <li key={playlist.id} className="playlist-item">
-              <div className="playlist-name">{playlist.name}</div>
-              <div className="playlist-user">Created by User ID: {playlist.user_id}</div>
-            </li>
+            <div key={playlist.id} className="playlist-card">
+              <h2>{playlist.name}</h2>
+              <p>Created by User ID: {playlist.user_id}</p>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
